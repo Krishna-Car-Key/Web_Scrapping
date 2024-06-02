@@ -1,3 +1,4 @@
+import time
 import requests
 import selectorlib
 import emailSender
@@ -31,7 +32,7 @@ def write_data(extracted):
         file.write(extracted + "\n")
 
 
-if __name__ == "__main__":
+while True:
     source = scrape(URL)
     extracted_data = extractor(source)
     data = get_data()
@@ -39,6 +40,7 @@ if __name__ == "__main__":
         if extracted_data not in data:
             write_data(extracted_data)
             emailSender.send_email(user_mail="user@gmail.com", message=extracted_data)
+    time.sleep(2)
 
 
 
