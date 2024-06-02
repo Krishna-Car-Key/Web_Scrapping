@@ -19,15 +19,16 @@ def extractor(source):
     return extracted
 
 
-def write_data(extracted):
-    with open("data.txt", "a") as file:
-        file.write(extracted + "\n")
-
-
 def get_data():
     with open("data.txt", "r") as file:
         data = file.read()
     return data.split("\n")
+
+
+def write_data(extracted):
+
+    with open("data.txt", "a") as file:
+        file.write(extracted + "\n")
 
 
 if __name__ == "__main__":
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     if extracted_data.title() != "No Upcoming Tours":
         if extracted_data not in data:
             write_data(extracted_data)
-            emailSender.send_email()
+            emailSender.send_email(user_mail="user@gmail.com", message=extracted_data)
 
 
 
