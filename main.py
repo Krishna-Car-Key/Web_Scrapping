@@ -2,8 +2,10 @@ import time
 import requests
 import selectorlib
 import emailSender
+import sqlite3
 
 URL = "http://programmer100.pythonanywhere.com/tours/"
+Connection = sqlite3.connect("data.db")
 
 
 def scrape(url):
@@ -20,24 +22,32 @@ def extractor(source):
     return extracted
 
 
-def get_data():
-    with open("data.txt", "r") as file:
-        data = file.read()
-    return data.split("\n")
+def get_data(extracted):
+    row = extracted.split(",")
+    row = [item.strip("") for item in row]
+    band, city, date = row
+    cursor = Connection.cursor()
+    result = cursor.execute("SELECT * FROM tours WHERE band=? AND city=? AND date=?",
+                            (band, city, date))
+    result = result.fetchall()
+    return result
 
 
 def write_data(extracted):
-
-    with open("data.txt", "a") as file:
-        file.write(extracted + "\n")
+    row = extracted.split(",")
+    row = [item.strip("") for item in row]
+    band, city, date = row
+    cursor = Connection.cursor()
+    cursor.execute("INSERT INTO tours VALUES(?,?,?)", (band, city, date))
+    Connection.commit()
 
 
 while True:
     source = scrape(URL)
     extracted_data = extractor(source)
-    data = get_data()
     if extracted_data.title() != "No Upcoming Tours":
-        if extracted_data not in data:
+        data = get_data(extracted_data)
+        if not data:
             write_data(extracted_data)
             emailSender.send_email(user_mail="user@gmail.com", message=extracted_data)
     time.sleep(2)
